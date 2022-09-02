@@ -9,7 +9,7 @@ import os
 
 class Micro(FastAPI):
 
-    __cron: Callable = None
+    _cron: Callable = None
 
     @property
     def deta(self) -> Deta:
@@ -18,7 +18,7 @@ class Micro(FastAPI):
     @classmethod
     def cron(cls, func: Callable):
         if not inspect.iscoroutinefunction(func) and len(inspect.getfullargspec(func).args) == 1:
-            cls.__cron = func
+            cls._cron = func
 
     @property
     def export(self) -> Micro:
@@ -29,7 +29,10 @@ class Micro(FastAPI):
             return self
         else:
             app = App(self)
-            c = Cron()
-            c.populate_cron(self.__cron)
-            app.lib._cron = c
+            if self._cron:
+                def wrapped_cron(event):
+                    return self._cron(event)
+                c = Cron()
+                c.populate_cron(wrapped_cron)
+                app.lib._cron = c
             return app
