@@ -9,7 +9,7 @@ import os
 
 class Micro(FastAPI):
 
-    _corn: Callable = None
+    __exportable: Micro = None
 
     @property
     def deta(self) -> Deta:
@@ -18,21 +18,18 @@ class Micro(FastAPI):
     @classmethod
     def corn(cls, func: Callable):
         if not inspect.iscoroutinefunction(func) and len(inspect.getfullargspec(func).args) == 1:
-            cls._corn = func
+            try:
+                from detalib.app import App
+                from detalib.app import Cron
+            except ImportError:
+                pass
+            else:
+                app = App(self)
+                c = Cron()
+                c.populate_cron(func)
+                app.lib._cron = c
+                cls.__exportable = app
 
     @property
     def export(self) -> Micro:
-        try:
-            from detalib.app import App
-            from detalib.app import Corn
-        except ImportError:
-            return self
-        else:
-            def wrapped_corn(event):
-                return self._corn(event)
-            app = App(self)
-            if self._corn:
-                corn = Corn()
-                corn.populate_cron(wrapped_corn)
-                app.lib._corn = corn
-            return app
+        return self.__exportable or self
