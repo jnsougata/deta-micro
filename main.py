@@ -4,8 +4,8 @@ micro = Micro()
 
 
 @micro.cron()
-def corn_job(event):
-    return "cron executed"
+def corn_job(event: dict):
+    return event
 
 
 @micro.on_start()

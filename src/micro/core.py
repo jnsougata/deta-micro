@@ -35,9 +35,11 @@ class Micro(FastAPI):
                     except ImportError:
                         pass
                     else:
+                        def wrapped_cron(event):
+                            return func(event.__dict__)
                         app = App(self)
                         app.lib._cron = Cron()
-                        app.lib._cron.populate_cron(func)
+                        app.lib._cron.populate_cron(wrapped_cron)
                         self._exportable = app
             return wrapper()
         return deco
