@@ -9,30 +9,25 @@ import os
 
 class Micro(FastAPI):
 
-    _cron: Callable = None
+    _exportable: Micro = None
 
     @property
     def deta(self) -> Deta:
         return Deta(os.getenv("DETA_PROJECT_KEY"))
 
-    @classmethod
-    def cron(cls, func: Callable):
+    def cron(self, func: Callable):
         if not inspect.iscoroutinefunction(func) and len(inspect.getfullargspec(func).args) == 1:
-            cls._cron = func
+            try:
+                from detalib.app import App
+                from detalib.app import Cron
+            except ImportError:
+                pass
+            else:
+                app = App(self)
+                app.lib._cron = Cron()
+                app.lib._cron.populate_cron(func)
+                self._exportable = app
 
     @property
     def export(self) -> Micro:
-        try:
-            from detalib.app import App
-            from detalib.app import Cron
-        except ImportError:
-            return self
-        else:
-            app = App(self)
-            if self._cron:
-                def wrapped_cron(event):
-                    return self._cron(event)
-                c = Cron()
-                c.populate_cron(wrapped_cron)
-                app.lib._cron = c
-            return app
+        return self._exportable or self

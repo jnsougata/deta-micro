@@ -5,7 +5,7 @@ micro = Micro()
 
 @micro.cron
 def corn_job(event):
-    return "corn_job executed"
+    return "cron executed"
 
 
 @micro.get("/")
