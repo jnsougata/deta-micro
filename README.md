@@ -10,28 +10,31 @@ pip install git+https://github.com/jnsougata/deta-micro.git
 
 ```python
 from micro import Micro
+import random
+import asyncio
 
 micro = Micro()
 
 
-@micro.cron()
+@micro.cron
 def corn_job(event: dict):
     return event
 
 
-@micro.startup_task()
+@micro.startup_task
 def task_one():
-    print("micro deployed")
+    print("... micro deployed")
 
 
-@micro.startup_task()
-def task_two():
-    print("records created")
+@micro.startup_task
+async def task_two():
+    await asyncio.sleep(5)
+    print("... records created")
 
 
 @micro.get("/")
 async def index():
-    return {"message": "Hello World"}
+    return {"number": random.randint(0, 100)}
 
 app = micro.export
 
