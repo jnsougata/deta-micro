@@ -5,7 +5,6 @@ from typing import Callable
 import inspect
 from deta import Deta
 import os
-import asyncio
 
 
 class Micro(FastAPI):
@@ -20,8 +19,6 @@ class Micro(FastAPI):
     def startup_task(func: Callable) -> None:
         if not inspect.iscoroutinefunction(func):
             func()
-        else:
-            asyncio.create_task(func())
 
     def cron(self, func: Callable) -> None:
         if len(inspect.getfullargspec(func).args) == 1:
