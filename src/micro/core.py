@@ -24,14 +24,15 @@ class Micro(FastAPI):
             asyncio.create_task(func())
 
     def cron(self, func: Callable) -> None:
-        if not inspect.iscoroutinefunction(func) and len(inspect.getfullargspec(func).args) == 1:
+        if len(inspect.getfullargspec(func).args) == 1:
             try:
                 from detalib.app import App
             except ImportError:
                 pass
             else:
                 def wrapped_cron(event):
-                    return func(event.__dict__)
+                    if not inspect.iscoroutinefunction(func):
+                        return func(event.__dict__)
 
                 app = App(self)
                 app.lib._cron.populate_cron(wrapped_cron)
