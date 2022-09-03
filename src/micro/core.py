@@ -5,7 +5,9 @@ from typing import Callable
 import inspect
 from deta import Deta
 import os
+import traceback
 from typing import Optional
+from .utils import *
 
 
 class Micro(FastAPI):
@@ -28,18 +30,17 @@ class Micro(FastAPI):
                 pass
 
     def cron(self, func: Callable) -> None:
-        if len(inspect.getfullargspec(func).args) == 1:
+        if single_arged(func) and not coro(func):
             try:
                 from detalib.app import App
             except ImportError:
                 pass
             else:
-                def wrapped_cron(event):
-                    if not inspect.iscoroutinefunction(func):
-                        return func(event.__dict__)
-
+                def invoker(event):
+                    resource = event.__dict__
+                    return func(resource)
                 app = App(self)
-                app.lib._cron.populate_cron(wrapped_cron)
+                app.lib._cron.populate_cron(invoker)
                 self._exportable = app
 
     @property
