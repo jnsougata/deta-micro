@@ -27,7 +27,8 @@ def task_one():
 
 @micro.startup_task
 def task_two():
-    print("... records created")
+    micro.deta.Base("test").put(random.randint(0, 100), "startup")
+    print("... record initialized")
 
 
 @micro.get("/")
