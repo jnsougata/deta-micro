@@ -5,6 +5,7 @@ from typing import Callable
 import inspect
 from deta import Deta
 import os
+from typing import Optional
 
 
 class Micro(FastAPI):
@@ -12,13 +13,19 @@ class Micro(FastAPI):
     _exportable: Micro = None
 
     @property
-    def deta(self) -> Deta:
-        return Deta(os.getenv("DETA_PROJECT_KEY"))
+    def deta(self) -> Optional[Deta]:
+        try:
+            return Deta(os.getenv("DETA_PROJECT_KEY"))
+        except Exception:
+            return None
 
     @staticmethod
     def startup_task(func: Callable) -> None:
         if not inspect.iscoroutinefunction(func):
-            func()
+            try:
+                func()
+            except:
+                pass
 
     def cron(self, func: Callable) -> None:
         if len(inspect.getfullargspec(func).args) == 1:
