@@ -16,7 +16,7 @@ class Micro(FastAPI):
         return Deta(os.getenv("DETA_PROJECT_KEY"))
 
     @staticmethod
-    def on_start():
+    def startup_task():
         def deco(func: Callable):
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -31,14 +31,12 @@ class Micro(FastAPI):
                 if not inspect.iscoroutinefunction(func) and len(inspect.getfullargspec(func).args) == 1:
                     try:
                         from detalib.app import App
-                        from detalib.app import Cron
                     except ImportError:
                         pass
                     else:
                         def wrapped_cron(event):
                             return func(event.__dict__)
                         app = App(self)
-                        app.lib._cron = Cron()
                         app.lib._cron.populate_cron(wrapped_cron)
                         self._exportable = app
             return wrapper()
