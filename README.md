@@ -1,5 +1,5 @@
 # deta-micro
-Deta Micro focused ASGI framework built on top of fastapi
+Deta Micro focused ASGI framework built on FastAPI
 
 ## Installation
 ```bash
