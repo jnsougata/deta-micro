@@ -11,7 +11,6 @@ pip install git+https://github.com/jnsougata/deta-micro.git
 ```python
 from micro import Micro
 import random
-import asyncio
 
 micro = Micro()
 
@@ -27,8 +26,7 @@ def task_one():
 
 
 @micro.startup_task
-async def task_two():
-    await asyncio.sleep(5)
+def task_two():
     print("... records created")
 
 
