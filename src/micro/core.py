@@ -17,7 +17,7 @@ class Micro(FastAPI):
     @property
     def deta(self) -> Optional[Deta]:
         try:
-            return Deta(os.getenv("DETA_PROJECT_KEY"))
+            return Deta()
         except Exception:
             return None
 
